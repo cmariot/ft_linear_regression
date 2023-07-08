@@ -48,6 +48,23 @@ def get_data(path: str):
         exit()
 
 
+def print_result(linear_regression):
+    """
+    Print the result of the linear regression.
+    """
+    try:
+        indexes = ["theta0", "theta1", "loss", "r2 score"]
+        values = np.array([linear_regression.thetas[0, 0],
+                           linear_regression.thetas[1, 0],
+                           linear_regression.losses[-1],
+                           linear_regression.r2_scores[-1]])
+        df = pandas.DataFrame(values, index=indexes)
+        print("Here are the results of the linear regression : \n" +
+              df.to_string(header=False, index=True))
+    except Exception:
+        exit()
+
+
 def save_thetas(thetas, filename):
     """
     Save the thetas in a file model.pkl for the first program.
@@ -77,26 +94,25 @@ if __name__ == "__main__":
 
     # Denormalize the thetas
     thetas = linear_regression.denormalize()
-    if thetas is not None:
-        linear_regression.thetas = thetas
-        print(f"theta0 = {thetas[0, 0]}")
-        print(f"theta1 = {thetas[1, 0]}")
+
+    # Predict the price of each car in the dataset using the hypothesis
+    y_hat = linear_regression.predict(feature)
 
     # Save the thetas in a file model.npy for the first program
-    save_thetas(linear_regression.thetas, "model.npy")
+    save_thetas(thetas, "model.npy")
 
-    # Calculate the loss
-    y_hat = linear_regression.predict(feature)
-    loss = linear_regression.loss(target, y_hat)
-    if loss is not None:
-        print(f"loss   = {loss}")
+    # Print theta0, theta1, loss and R2 score
+    print_result(linear_regression)
 
     # Plot the evolution of the gradient descent algorithm
-    linear_regression.plot_progress(feature, target)
+    linear_regression.plot_gradient_descent(feature, target)
 
-    # A program that calculates the precision of your algorithm
-    linear_regression.plot_losses()
+    # Plot the evolution of the loss and the R2 score during the training
+    linear_regression.plot_metrics()
 
     # Plot the data to see the distribution and the line resulting
-    # from your linear regression on the same graph
-    linear_regression.plot(feature, target, y_hat)
+    # from the linear regression on the same graph
+    linear_regression.plot_prediction(feature, target, y_hat, None, None)
+
+    print("\nYou can now use the first program to predict " +
+          "the price of a car depending on its mileage.")

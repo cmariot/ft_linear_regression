@@ -11,6 +11,7 @@
 # > python3 predict.py
 
 from linear_regression import LinearRegression
+from train import get_data
 import numpy as np
 
 
@@ -77,14 +78,21 @@ def pedict_price(mileage, thetas):
         return None
 
 
-def print_prediction(mileage, price):
+def print_prediction(mileage, price, feature, target):
     """
     Print the predicted price.
     """
 
+    if mileage < feature.min() or mileage > feature.max():
+        print("Warning: The input data is outside the training range, " +
+              "which may result in inaccurate predictions.\n" +
+              "Please exercise caution when interpreting the results.\n")
+
     if price < 0:
         print("The predicted price is negative, which is not possible.\n" +
               "Please try again with a lower mileage.")
+        exit()
+
     else:
         def format_value(value):
             """
@@ -97,9 +105,25 @@ def print_prediction(mileage, price):
               .format(format_value(mileage), format_value(price)))
 
 
+def plot_prediction(mileage, price, thetas, feature, target):
+    """
+    Plot the data, the prediction line and the prediction point
+    """
+    try:
+        linear_regression = LinearRegression(thetas)
+        y_hat = linear_regression.predict(feature)
+        predict = np.array([[mileage, price]])
+        linear_regression.plot_prediction(feature, target,
+                                          y_hat, predict=predict)
+    except Exception:
+        return None
+
+
 if __name__ == "__main__":
     intro()
     mileage = prompt_mileage()
     thetas = get_thetas()
     price = pedict_price(mileage, thetas)
-    print_prediction(mileage, price)
+    feature, target = get_data("data.csv")
+    print_prediction(mileage, price, feature, target)
+    plot_prediction(mileage, price, thetas, feature, target)
