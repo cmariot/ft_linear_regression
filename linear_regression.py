@@ -230,7 +230,7 @@ class LinearRegression:
                 predicted_x = predict[0, 0]
                 predicted_y = predict[0, 1]
                 plt.scatter(predicted_x, predicted_y, color="green",
-                            label="Predicted point")
+                            marker='x', label="Predicted point")
                 plt.plot([predicted_x, predicted_x], [0, predicted_y],
                          'g--', linewidth=0.75, alpha=0.8)
                 plt.plot([0, predicted_x], [predicted_y, predicted_y],
