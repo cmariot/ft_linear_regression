@@ -9,8 +9,14 @@ def ft_progress(iterable,
                 fill='█',
                 empty='░',
                 print_end='\r'):
+    """
+    Progress bar generator.
+    """
 
     def get_eta_str(eta):
+        """
+        Return the Estimed Time Arrival as str.
+        """
         if eta == 0.0:
             return '[DONE]    '
         elif eta < 60:
@@ -21,6 +27,9 @@ def ft_progress(iterable,
             return f'[ETA {eta / 3600:.0f} h]'
 
     def get_elapsed_time_str(elapsed_time):
+        """
+        Return the elapsed time as str.
+        """
         if elapsed_time < 60:
             return f' [Elapsed-time {elapsed_time:.2f} s]'
         elif elapsed_time < 3600:
@@ -57,13 +66,17 @@ class LinearRegression:
     Linear regression class.
     """
 
-    def __init__(self, thetas=np.zeros((2, 1)), alpha=0.01, n_cycle=100_000):
+    def __init__(self, thetas=np.zeros((2, 1)), alpha=10e-4, n_cycle=10_000):
         """
         Init the class.
         """
         self.thetas = thetas
         self.alpha = alpha
         self.n_cycle = n_cycle
+        self.x_mean = None
+        self.x_std = None
+        self.losses = []
+        self.thetas_plot = []
 
     def normalize(self, x):
         """
@@ -103,11 +116,17 @@ class LinearRegression:
         Train the model.
         """
         try:
+            # Get 10 points to plot the progress of the gradient descent
+            points = np.logspace(0, np.log10(self.n_cycle - 1), 10, dtype=int)
             for _ in ft_progress(range(self.n_cycle)):
                 gradient = self.gradient(x, y)
                 self.thetas = self.thetas - self.alpha * gradient
+                y_hat = self.predict(x)
+                self.losses.append(self.loss(y, y_hat))
+                if _ in points:
+                    denormalized_thetas = self.denormalize()
+                    self.thetas_plot.append(denormalized_thetas)
             print("\nTraining completed !\n")
-            self.thetas = self.denormalize()
             return self.thetas
         except Exception:
             return None
@@ -121,8 +140,6 @@ class LinearRegression:
             denormalized_thetas[0] = self.thetas[0, 0] - \
                 (self.thetas[1, 0] * self.x_mean / self.x_std)
             denormalized_thetas[1] = self.thetas[1, 0] / self.x_std
-            print(f"theta0 = {denormalized_thetas[0, 0]}")
-            print(f"theta1 = {denormalized_thetas[1, 0]}")
             return denormalized_thetas
         except Exception:
             return None
@@ -147,21 +164,58 @@ class LinearRegression:
             Return the equation of the prediction line as str.
             """
             sign = "+" if denormalized_thetas[1, 0] > 0 else "-"
-            return f"y = {denormalized_thetas[0, 0]:.2f} {sign} " + \
-                f"{abs(denormalized_thetas[1, 0]):.2f} * x"
+            return f"f(x)  = {denormalized_thetas[0, 0]:.2f} {sign} " + \
+                f"{abs(denormalized_thetas[1, 0]):.4f} * x\n" + \
+                f"loss = {self.loss(target, y_hat):.2f}"
 
         try:
             plt.scatter(feature, target, color="blue", label="Data")
             plt.plot(feature, y_hat, color="red", label="Prediction")
-            plt.text(0.05, 0.10, equation(self.thetas),
+            for i in range(feature.shape[0]):
+                plt.plot([feature[i], feature[i]], [target[i], y_hat[i]],
+                         'r--', linewidth=0.75, alpha=0.5)
+            plt.text(0.5, 0.10, equation(self.thetas),
                      transform=plt.gca().transAxes,
-                     fontsize=12, verticalalignment='top', color="red")
+                     fontsize=11, verticalalignment='top', color="red")
             plt.title("Linear regression on car price depending on mileage")
             plt.xlabel("Mileage (km)")
             plt.ylabel("Price (€)")
             plt.grid(linestyle=':', linewidth=0.5)
+            plt.xlim(0, np.max(feature) * 1.05)
+            plt.ylim(0, np.max(target) * 1.05)
             plt.legend()
             plt.show()
 
+        except Exception:
+            return None
+
+    def plot_progress(self, feature, target):
+        """
+        Plot the progress of the gradient descent.
+        """
+        try:
+            _lr = LinearRegression()
+            for thetas in self.thetas_plot:
+                _lr.thetas = thetas
+                y_hat = _lr.predict(feature)
+                _lr.plot(feature, target, y_hat)
+
+        except Exception:
+            return None
+
+    def plot_losses(self):
+        """
+        Plot the losses.
+        """
+        try:
+            plt.plot(self.losses, color="red")
+            plt.title("Evolution of the loss function during training")
+            plt.xlabel("Number of iterations")
+            plt.ylabel("Loss")
+            plt.text(0.6, 0.10, f"final loss = {self.losses[-1]:.2f}",
+                     transform=plt.gca().transAxes,
+                     fontsize=11, verticalalignment='top', color="red")
+            plt.grid(linestyle=':', linewidth=0.5)
+            plt.show()
         except Exception:
             return None

@@ -10,9 +10,8 @@
 # The program will be run as follows:
 # > python3 predict.py
 
-import numpy as np
-import pickle
 from linear_regression import LinearRegression
+import numpy as np
 
 
 def intro():
@@ -50,15 +49,15 @@ def get_thetas():
     """
     try:
         thetas = np.zeros((2, 1))
-        with open('model.pkl', 'rb') as f:
-            data = pickle.load(f)
-            thetas[0, 0] = data["theta0"]
-            thetas[1, 0] = data["theta1"]
-            if not isinstance(thetas[0, 0], (int, float)) \
+        with open('model.npy', 'rb') as f:
+            thetas = np.load(f)
+            if not isinstance(thetas, np.ndarray) \
+                    or thetas.shape != (2, 1) \
+                    or not isinstance(thetas[0, 0], (int, float)) \
                     or not isinstance(thetas[1, 0], (int, float)):
                 raise TypeError
     except TypeError:
-        print("Thetas are not numeric.\n" +
+        print("Thetas are invalid.\n" +
               "Default thetas will be used.\n")
     except Exception:
         print("It looks like you didn't train the model.\n" +

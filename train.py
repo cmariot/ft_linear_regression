@@ -6,8 +6,8 @@
 # variables theta0 and theta1 for use in the first program.
 
 from linear_regression import LinearRegression
-import pandas as pd
-import pickle
+import numpy as np
+import pandas
 
 
 def intro():
@@ -19,12 +19,16 @@ def intro():
 def get_data(path: str):
     """
     Get the data from the csv file and return the feature and the target.
-    # Check the shape of the dataframe
-    # Check if the file is well formatted
-    # Check if the file contains only numeric values
+    - Check the shape of the dataframe
+    - Check if the file is well formatted
+    - Check if the file contains only numeric values
+
+    (the dataset is too small to split it into train and test sets,
+     and as we already know the hypothesis equation,
+     we don't need to split it to avoid overfitting)
     """
     try:
-        df = pd.read_csv(path)
+        df = pandas.read_csv(path)
         if df.shape[0] < 2 or df.shape[1] != 2:
             raise IndexError(
                 "Invalid dataframe shape.")
@@ -40,8 +44,7 @@ def get_data(path: str):
         target = df[:, 1].reshape(-1, 1)
         return feature, target
 
-    except Exception as e:
-        print(e)
+    except Exception:
         exit()
 
 
@@ -50,13 +53,9 @@ def save_thetas(thetas, filename):
     Save the thetas in a file model.pkl for the first program.
     """
     try:
-        data = {}
-        data["theta0"] = float(thetas[0, 0])
-        data["theta1"] = float(thetas[1, 0])
         with open(filename, "wb") as f:
-            pickle.dump(data, f)
+            np.save(f, thetas)
     except Exception:
-        print("Error while saving thetas.")
         exit()
 
 
@@ -76,13 +75,27 @@ if __name__ == "__main__":
     # Train the model
     linear_regression.fit(normalized_feature, target)
 
-    # Save the thetas in a file model.pkl for the first program
-    save_thetas(linear_regression.thetas, "model.pkl")
+    # Denormalize the thetas
+    thetas = linear_regression.denormalize()
+    if thetas is not None:
+        linear_regression.thetas = thetas
+        print(f"theta0 = {thetas[0, 0]}")
+        print(f"theta1 = {thetas[1, 0]}")
 
-    # A program that calculates the precision of your algorithm
+    # Save the thetas in a file model.npy for the first program
+    save_thetas(linear_regression.thetas, "model.npy")
+
+    # Calculate the loss
     y_hat = linear_regression.predict(feature)
     loss = linear_regression.loss(target, y_hat)
-    print(f"\nLoss = {loss}")
+    if loss is not None:
+        print(f"loss   = {loss}")
+
+    # Plot the evolution of the gradient descent algorithm
+    linear_regression.plot_progress(feature, target)
+
+    # A program that calculates the precision of your algorithm
+    linear_regression.plot_losses()
 
     # Plot the data to see the distribution and the line resulting
     # from your linear regression on the same graph
