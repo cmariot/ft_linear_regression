@@ -70,17 +70,20 @@ class LinearRegression:
         """
         Init the class.
         """
-        self.thetas = thetas
-        self.alpha = alpha
-        self.n_cycle = n_cycle
-        self.x_mean = None
-        self.x_std = None
-        self.losses = []
-        self.r2_scores = []
-        self.thetas_plot = []
-        self.points = np.logspace(0, np.log10(self.n_cycle - 1), 10, dtype=int)
-        self.points[0] = 0
-        self.points[-1] = self.n_cycle - 1
+        try:
+            self.thetas = thetas
+            self.alpha = alpha
+            self.n_cycle = n_cycle
+            self.x_mean = None
+            self.x_std = None
+            self.losses = []
+            self.r2_scores = []
+            self.thetas_plot = []
+            self.points = np.logspace(0, np.log10(self.n_cycle - 1), 10, dtype=int)
+            self.points[0] = 0
+            self.points[-1] = self.n_cycle - 1
+        except Exception:
+            return None
 
     def normalize(self, x):
         """
@@ -180,17 +183,20 @@ class LinearRegression:
             """
             Return the equation of the prediction line as str.
             """
-            sign = "+" if denormalized_thetas[1, 0] > 0 else "-"
-            if iteration is not None:
-                return f"Iteration {iteration} :\n" + \
-                    f"f(x)  = {denormalized_thetas[0, 0]:.2f} {sign} " + \
+            try:
+                sign = "+" if denormalized_thetas[1, 0] > 0 else "-"
+                if iteration is not None:
+                    return f"Iteration {iteration} :\n" + \
+                        f"f(x)  = {denormalized_thetas[0, 0]:.2f} {sign} " + \
+                        f"{abs(denormalized_thetas[1, 0]):.4f} * x\n" + \
+                        f"loss  = {self.loss(target, y_hat):.2f}\n" + \
+                        f"R2   = {self.r2_score(target, y_hat):.2f}"
+                return f"f(x)  = {denormalized_thetas[0, 0]:.2f} {sign} " + \
                     f"{abs(denormalized_thetas[1, 0]):.4f} * x\n" + \
-                    f"MSE  = {self.loss(target, y_hat):.2f}\n" + \
+                    f"loss = {self.loss(target, y_hat):.2f}\n" + \
                     f"R2   = {self.r2_score(target, y_hat):.2f}"
-            return f"f(x)  = {denormalized_thetas[0, 0]:.2f} {sign} " + \
-                f"{abs(denormalized_thetas[1, 0]):.4f} * x\n" + \
-                f"loss = {self.loss(target, y_hat):.2f}\n" + \
-                f"R2   = {self.r2_score(target, y_hat):.2f}"
+            except Exception:
+                return None
 
         try:
 
@@ -283,6 +289,7 @@ class LinearRegression:
         Plot the losses.
         """
         try:
+
             fig = plt.figure()
 
             # Plot the losses

@@ -12,8 +12,7 @@ import pandas
 
 def intro():
     print("Welcome to the car price training program ! 🦾\n" +
-          "Let's train a linear regression model to predict " +
-          "the price of a car depending on mileage.\n")
+          "Let's train a linear regression model with some data.\n")
 
 
 def get_data(path: str):
@@ -101,14 +100,14 @@ if __name__ == "__main__":
     # Save the thetas in a file model.npy for the first program
     save_thetas(thetas, "model.npy")
 
-    # Print theta0, theta1, loss and R2 score
-    print_result(linear_regression)
-
     # Plot the evolution of the gradient descent algorithm
     linear_regression.plot_gradient_descent(feature, target)
 
     # Plot the evolution of the loss and the R2 score during the training
     linear_regression.plot_metrics()
+
+    # Print theta0, theta1, loss and R2 score
+    print_result(linear_regression)
 
     # Plot the data to see the distribution and the line resulting
     # from the linear regression on the same graph
