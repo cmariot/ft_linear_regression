@@ -78,7 +78,7 @@ def pedict_price(mileage, thetas):
         return None
 
 
-def print_prediction(mileage, price, feature, target):
+def print_prediction(mileage, price, feature):
     """
     Print the predicted price.
     """
@@ -123,7 +123,9 @@ if __name__ == "__main__":
     intro()
     mileage = prompt_mileage()
     thetas = get_thetas()
+    if thetas is None:
+        exit(1)
     price = pedict_price(mileage, thetas)
     feature, target = get_data("data.csv")
-    print_prediction(mileage, price, feature, target)
+    print_prediction(mileage, price, feature)
     plot_prediction(mileage, price, thetas, feature, target)

@@ -66,7 +66,7 @@ def print_result(linear_regression):
 
 def save_thetas(thetas, filename):
     """
-    Save the thetas in a file model.pkl for the first program.
+    Save the thetas in a file model.npy for the first program.
     """
     try:
         with open(filename, "wb") as f:
@@ -94,11 +94,11 @@ if __name__ == "__main__":
     # Denormalize the thetas
     thetas = linear_regression.denormalize()
 
-    # Predict the price of each car in the dataset using the hypothesis
-    y_hat = linear_regression.predict(feature)
-
     # Save the thetas in a file model.npy for the first program
     save_thetas(thetas, "model.npy")
+
+    # Predict the price of each car in the dataset using the hypothesis
+    y_hat = linear_regression.predict(feature)
 
     # Plot the evolution of the gradient descent algorithm
     linear_regression.plot_gradient_descent(feature, target)
